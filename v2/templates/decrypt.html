@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DECRYPT // {{ info.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="workspace-header">
+            <div>
+                <a href="/cipher/{{ info.id }}" class="back-link">← BACK TO {{ info.title|upper }} HUB</a>
+                <h1>DECRYPTOR // {{ info.title|upper }}<span>_</span></h1>
+            </div>
+        </header>
+
+        <input type="hidden" id="activeCipher" value="{{ info.id }}">
+        <input type="hidden" id="activeAction" value="decrypt">
+
+        <div class="grid-layout">
+            <!-- Ciphertext Input Panel -->
+            <div class="card">
+                <h2>// CIPHERTEXT INPUT</h2>
+
+                <label for="messageInput">CIPHERTEXT MESSAGE</label>
+                <textarea id="messageInput" rows="6" placeholder="Enter encrypted ciphertext to decode..."></textarea>
+
+                <label for="keyInput">{{ info.key_label|upper }} (REQUIRED)</label>
+                <input type="text" id="keyInput" placeholder="Enter secret key used for encryption...">
+
+                <div class="button-group">
+                    <button class="btn btn-decrypt" onclick="executeProcess()">EXECUTE DECRYPTION</button>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="card">
+                <h2>// DECRYPTED OUTPUT</h2>
+
+                <label>PLAINTEXT RESULT</label>
+                <div class="output-container">
+                    <button class="copy-btn" onclick="copyToClipboard('resultBox', this)">COPY</button>
+                    <div id="resultBox" class="output-display">Awaiting decryption job...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

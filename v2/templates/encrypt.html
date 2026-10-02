@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENCRYPT // {{ info.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="workspace-header">
+            <div>
+                <a href="/cipher/{{ info.id }}" class="back-link">← BACK TO {{ info.title|upper }} HUB</a>
+                <h1>ENCRYPTOR // {{ info.title|upper }}<span>_</span></h1>
+            </div>
+        </header>
+
+        <input type="hidden" id="activeCipher" value="{{ info.id }}">
+        <input type="hidden" id="activeAction" value="encrypt">
+
+        <div class="grid-layout">
+            <!-- Plaintext Input Panel -->
+            <div class="card">
+                <h2>// PLAINTEXT INPUT</h2>
+
+                <label for="messageInput">PLAINTEXT MESSAGE</label>
+                <textarea id="messageInput" rows="6" placeholder="Enter plaintext to encrypt..."></textarea>
+
+                <label for="keyInput">{{ info.key_label|upper }}</label>
+                <input type="text" id="keyInput" placeholder="{{ info.key_placeholder }}">
+
+                <div class="button-group">
+                    <button class="btn btn-encrypt" onclick="executeProcess()">EXECUTE ENCRYPTION</button>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="card">
+                <h2>// ENCRYPTED OUTPUT</h2>
+
+                <label>CIPHERTEXT RESULT</label>
+                <div class="output-container">
+                    <button class="copy-btn" onclick="copyToClipboard('resultBox', this)">COPY</button>
+                    <div id="resultBox" class="output-display">Awaiting encryption job...</div>
+                </div>
+
+                <div id="keyUsedGroup" class="hidden">
+                    <label>KEY UTILIZED / GENERATED</label>
+                    <div class="output-container">
+                        <button class="copy-btn" onclick="copyToClipboard('keyUsedBox', this)">COPY</button>
+                        <div id="keyUsedBox" class="output-display key-display">---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

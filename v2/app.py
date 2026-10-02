@@ -1,169 +1,190 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
 import random
 import string
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Cipher Metadata for Dynamic Page Rendering
 CIPHERS_INFO = {
     "caesar": {
+        "id": "caesar",
         "title": "Caesar Cipher",
-        "description": "A simple shift cipher where characters are rotated by a fixed numerical value.",
-        "difficulty": "Easy",
-        "type": "Substitution"
+        "badge": "SUBSTITUTION",
+        "description": "A simple shift cipher where characters are rotated by a fixed numerical value across the alphabet.",
+        "key_label": "Shift Amount (0-25)",
+        "key_placeholder": "e.g. 3",
+        "key_type": "Numeric Shift"
     },
     "substitution": {
+        "id": "substitution",
         "title": "Simple Substitution Cipher",
-        "description": "Replaces each letter of the alphabet with a randomized 26-character mapping key.",
-        "difficulty": "Medium",
-        "type": "Monoalphabetic"
+        "badge": "MONOALPHABETIC",
+        "description": "Replaces each letter of the alphabet with a unique randomized 26-character mapping key.",
+        "key_label": "26-Character Mapping Key",
+        "key_placeholder": "e.g. QWERTYUIOPASDFGHJKLZXCVBNM",
+        "key_type": "Alphabet Map"
     },
     "otp": {
-        "title": "One-Time Pad (OTP)",
+        "id": "otp",
+        "title": "XOR Cipher (OTP)",
+        "badge": "SYMMETRIC PAD",
         "description": "Uses a truly random key sequence equal in length to the plaintext for theoretical unbreakability.",
-        "difficulty": "Advanced",
-        "type": "Symmetric Pad"
+        "key_label": "Secret Key / Pad",
+        "key_placeholder": "Leave empty to auto-generate on encryption...",
+        "key_type": "Random Pad"
     }
 }
 
-# --- Cryptographic Logic ---
-def caesar_encrypt(text, shift):
-    result = ""
+# -------------------------------------------------------------------
+# CIPHER ALGORITHMS LOGIC
+# -------------------------------------------------------------------
+
+def caesar_cipher(text, shift, mode='encrypt'):
+    if mode == 'decrypt':
+        shift = -shift
+    
+    result = []
     for char in text:
         if char.isalpha():
             start = ord('A') if char.isupper() else ord('a')
-            result += chr((ord(char) - start + shift) % 26 + start)
+            shifted_char = chr((ord(char) - start + shift) % 26 + start)
+            result.append(shifted_char)
         else:
-            result += char
-    return result
+            result.append(char)
+    return "".join(result)
 
-def caesar_decrypt(text, shift):
-    return caesar_encrypt(text, -shift)
-
-def gen_substitution_key():
-    alphabet = list(string.ascii_uppercase)
-    shuffled = alphabet.copy()
-    random.shuffle(shuffled)
-    return "".join(shuffled)
-
-def substitution_encrypt(text, key):
+def substitution_cipher(text, key, mode='encrypt'):
     alphabet = string.ascii_uppercase
     key = key.upper()
-    result = ""
+    
+    if len(key) != 26 or set(key) != set(alphabet):
+        raise ValueError("Key must be a valid 26-letter unique alphabet substitution.")
+
+    result = []
     for char in text:
-        if char.isupper():
-            idx = alphabet.find(char)
-            result += key[idx] if idx != -1 else char
-        elif char.islower():
-            idx = alphabet.find(char.upper())
-            result += key[idx].lower() if idx != -1 else char
+        if char.isalpha():
+            is_upper = char.isupper()
+            upper_char = char.upper()
+            
+            if mode == 'encrypt':
+                idx = alphabet.index(upper_char)
+                mapped = key[idx]
+            else:
+                idx = key.index(upper_char)
+                mapped = alphabet[idx]
+                
+            result.append(mapped if is_upper else mapped.lower())
         else:
-            result += char
-    return result
+            result.append(char)
+    return "".join(result)
 
-def substitution_decrypt(text, key):
-    alphabet = string.ascii_uppercase
-    key = key.upper()
-    result = ""
-    for char in text:
-        if char.isupper():
-            idx = key.find(char)
-            result += alphabet[idx] if idx != -1 else char
-        elif char.islower():
-            idx = key.find(char.upper())
-            result += alphabet[idx].lower() if idx != -1 else char
-        else:
-            result += char
-    return result
+def xor_otp_cipher(text, key=None, mode='encrypt'):
+    if mode == 'encrypt':
+        # Auto-generate key of EXACT message length if empty
+        if not key:
+            key = "".join(random.choices(string.ascii_letters + string.digits, k=len(text)))
+        
+        # Enforce strict OTP length rule for manual override
+        if len(key) < len(text):
+            raise ValueError(f"OTP Violation: Key length ({len(key)}) must be greater than or equal to message length ({len(text)}).")
+        
+        # Truncate key if longer than message to maintain 1:1 length ratio
+        key = key[:len(text)]
+        
+        # XOR process -> convert output to HEX string
+        encrypted_bytes = [ord(c) ^ ord(k) for c, k in zip(text, key)]
+        hex_result = "".join([f"{b:02x}" for b in encrypted_bytes])
+        return hex_result, key
 
-def otp_encrypt(text):
-    text_clean = [c.upper() for c in text if c.isalpha()]
-    key = [random.randint(0, 25) for _ in text_clean]
-    cipher_nums = [(ord(char) - ord('A') + key[i]) % 26 for i, char in enumerate(text_clean)]
-    encrypted_text = "".join(chr(n + ord('A')) for n in cipher_nums)
-    return encrypted_text, key
+    else: # Decrypt
+        if not key:
+            raise ValueError("A Secret Key is required to decrypt XOR Cipher.")
+        
+        try:
+            bytes_data = [int(text[i:i+2], 16) for i in range(0, len(text), 2)]
+        except ValueError:
+            raise ValueError("Invalid hex ciphertext format.")
 
-def otp_decrypt(text, key_list):
-    text_clean = [c.upper() for c in text if c.isalpha()]
-    plain_nums = [(ord(char) - ord('A') - key_list[i]) % 26 for i, char in enumerate(text_clean)]
-    return "".join(chr(n + ord('A')) for n in plain_nums)
+        # Enforce key length check against byte count during decryption
+        if len(key) < len(bytes_data):
+            raise ValueError(f"OTP Violation: Provided key length ({len(key)}) is shorter than ciphertext byte length ({len(bytes_data)}).")
+
+        key = key[:len(bytes_data)]
+        decrypted_chars = [chr(b ^ ord(k)) for b, k in zip(bytes_data, key)]
+        return "".join(decrypted_chars), key
+# -------------------------------------------------------------------
+# FRONTEND PAGE ROUTES
+# -------------------------------------------------------------------
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/cipher/<cipher_id>')
+def cipher_hub(cipher_id):
+    info = CIPHERS_INFO.get(cipher_id)
+    if not info:
+        return "Cipher not found", 404
+    return render_template('cipher.html', info=info)
+
+@app.route('/cipher/<cipher_id>/encrypt')
+def encrypt_page(cipher_id):
+    info = CIPHERS_INFO.get(cipher_id)
+    if not info:
+        return "Cipher not found", 404
+    return render_template('encrypt.html', info=info)
+
+@app.route('/cipher/<cipher_id>/decrypt')
+def decrypt_page(cipher_id):
+    info = CIPHERS_INFO.get(cipher_id)
+    if not info:
+        return "Cipher not found", 404
+    return render_template('decrypt.html', info=info)
 
 
-# --- Routes ---
-@app.route("/")
-def index():
-    return render_template("index.html", ciphers=CIPHERS_INFO)
+# -------------------------------------------------------------------
+# BACKEND API ROUTE
+# -------------------------------------------------------------------
 
-@app.route("/cipher/<cipher_type>")
-def cipher_page(cipher_type):
-    if cipher_type not in CIPHERS_INFO:
-        return redirect(url_for("index"))
-    info = CIPHERS_INFO[cipher_type]
-    return render_template("cipher.html", cipher_id=cipher_type, info=info)
+@app.route('/api/<cipher_id>/<action>', methods=['POST'])
+def process_cipher(cipher_id, action):
+    data = request.get_json() or {}
+    text = data.get('text', '')
+    key = data.get('key', '').strip()
 
-@app.route("/encrypt", methods=["POST"])
-def encrypt():
-    data = request.json
-    cipher = data.get("cipher")
-    message = data.get("message", "")
-    key = data.get("key", "")
-
-    if not message:
-        return jsonify({"status": "error", "message": "Message cannot be empty."})
+    if not text:
+        return jsonify({"error": "No input text provided"}), 400
 
     try:
-        if cipher == "caesar":
+        if cipher_id == 'caesar':
             shift = int(key) if key else 3
-            result = caesar_encrypt(message, shift)
-            return jsonify({"status": "success", "result": result, "key_used": str(shift)})
+            result = caesar_cipher(text, shift, mode=action)
+            return jsonify({"result": result, "key_used": str(shift)})
 
-        elif cipher == "substitution":
-            key_used = key if (key and len(key) == 26) else gen_substitution_key()
-            result = substitution_encrypt(message, key_used)
-            return jsonify({"status": "success", "result": result, "key_used": key_used})
-
-        elif cipher == "otp":
-            result, key_used = otp_encrypt(message)
-            return jsonify({"status": "success", "result": result, "key_used": key_used})
-
-        return jsonify({"status": "error", "message": "Invalid cipher selected."})
-
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-@app.route("/decrypt", methods=["POST"])
-def decrypt():
-    data = request.json
-    cipher = data.get("cipher")
-    message = data.get("message", "")
-    key = data.get("key", "")
-
-    if not message:
-        return jsonify({"status": "error", "message": "Message cannot be empty."})
-
-    try:
-        if cipher == "caesar":
-            shift = int(key) if key else 3
-            result = caesar_decrypt(message, shift)
-            return jsonify({"status": "success", "result": result})
-
-        elif cipher == "substitution":
-            if not key or len(key) != 26:
-                return jsonify({"status": "error", "message": "26-character key required for substitution decryption."})
-            result = substitution_decrypt(message, key)
-            return jsonify({"status": "success", "result": result})
-
-        elif cipher == "otp":
+        elif cipher_id == 'substitution':
             if not key:
-                return jsonify({"status": "error", "message": "Key numbers required for OTP decryption."})
-            key_list = [int(k.strip()) for k in key.split(",") if k.strip().isdigit()]
-            result = otp_decrypt(message, key_list)
-            return jsonify({"status": "success", "result": result})
+                if action == 'encrypt':
+                    # Auto-generate random 26 letter map
+                    key_list = list(string.ascii_uppercase)
+                    random.shuffle(key_list)
+                    key = "".join(key_list)
+                else:
+                    return jsonify({"error": "Key is required for decryption"}), 400
 
-        return jsonify({"status": "error", "message": "Invalid cipher selected."})
+            result = substitution_cipher(text, key, mode=action)
+            return jsonify({"result": result, "key_used": key})
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        elif cipher_id == 'otp':
+            result, key_used = xor_otp_cipher(text, key, mode=action)
+            return jsonify({"result": result, "key_used": key_used})
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=5000,debug=True)
+        else:
+            return jsonify({"error": "Unknown cipher type"}), 400
+
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 400
+    except Exception as err:
+        return jsonify({"error": f"Server processing error: {str(err)}"}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

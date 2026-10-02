@@ -366,3 +366,45 @@ input:focus, textarea:focus {
     .grid-layout { grid-template-columns: 1fr; }
     header h1 { font-size: 2rem; }
 }
+/* Ensure relative positioning on the container */
+.output-container {
+    position: relative;
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* Adjust the output text display to prevent text going under the button */
+.output-display {
+    width: 100%;
+    min-height: 50px;
+    background-color: rgba(15, 15, 20, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px 90px 12px 12px; /* 90px right padding keeps text clear of copy button */
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    word-break: break-all;
+    box-sizing: border-box;
+}
+
+/* Position copy button cleanly in top right corner */
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: var(--accent-color);
+    color: #000;
+}

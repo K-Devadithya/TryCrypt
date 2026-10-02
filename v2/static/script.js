@@ -1,79 +1,111 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const activeCipherInput = document.getElementById("activeCipher");
-    if (activeCipherInput) {
-        setupKeyPlaceholder(activeCipherInput.value);
+async function executeProcess() {
+    const cipher = document.getElementById('activeCipher').value;
+    const action = document.getElementById('activeAction').value;
+    const text = document.getElementById('messageInput').value;
+    const key = document.getElementById('keyInput').value;
+
+    const resultBox = document.getElementById('resultBox');
+    const keyUsedGroup = document.getElementById('keyUsedGroup');
+    const keyUsedBox = document.getElementById('keyUsedBox');
+
+    if (!text.trim()) {
+        resultBox.innerText = "Error: Input text cannot be empty.";
+        return;
     }
-});
 
-function setupKeyPlaceholder(cipher) {
-    const keyInput = document.getElementById("keyInput");
-    if (!keyInput) return;
-
-    if (cipher === "caesar") {
-        keyInput.placeholder = "Enter shift number (e.g., 3)";
-    } else if (cipher === "substitution") {
-        keyInput.placeholder = "Enter 26-char key (or leave blank to auto-generate)";
-    } else if (cipher === "otp") {
-        keyInput.placeholder = "Comma-separated key numbers (needed for decrypt)";
-    }
-}
-
-async function processCipher(action) {
-    const cipher = document.getElementById("activeCipher").value;
-    const message = document.getElementById("messageInput").value;
-    const key = document.getElementById("keyInput").value;
-
-    const endpoint = action === "encrypt" ? "/encrypt" : "/decrypt";
+    resultBox.innerText = "Processing...";
 
     try {
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ cipher: cipher, message: message, key: key })
+        const response = await fetch(`/api/${cipher}/${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text, key: key })
         });
 
         const data = await response.json();
 
-        const resultBox = document.getElementById("resultBox");
-        const keyUsedGroup = document.getElementById("keyUsedGroup");
-        const keyUsedBox = document.getElementById("keyUsedBox");
-
-        if (data.status === "success") {
-            resultBox.innerText = Array.isArray(data.result) ? data.result.join(", ") : data.result;
+        if (response.ok) {
+            resultBox.innerText = data.result;
             
-            if (data.key_used) {
-                keyUsedGroup.classList.remove("hidden");
-                keyUsedBox.innerText = Array.isArray(data.key_used) ? data.key_used.join(", ") : data.key_used;
-            } else {
-                keyUsedGroup.classList.add("hidden");
+            // Show key used if provided back by server
+            if (data.key_used && keyUsedGroup) {
+                keyUsedBox.innerText = data.key_used;
+                keyUsedGroup.classList.remove('hidden');
             }
         } else {
-            resultBox.innerText = "Error: " + data.message;
-            keyUsedGroup.classList.add("hidden");
+            resultBox.innerText = `Error: ${data.error || 'Execution failed'}`;
         }
     } catch (err) {
-        document.getElementById("resultBox").innerText = "Error: Server connection failed.";
+        resultBox.innerText = "Error: System communication failure.";
     }
 }
 
-function copyToClipboard(elementId) {
-    const textToCopy = document.getElementById(elementId).innerText;
-    
-    if (!textToCopy || textToCopy === "Awaiting input..." || textToCopy === "---") {
+// Universal Copy Function with HTTP/Mobile Fallback
+function copyToClipboard(elementId, btnElement) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    const textToCopy = el.innerText || el.textContent;
+
+    if (!textToCopy || textToCopy.startsWith("Awaiting") || textToCopy.startsWith("Error")) {
+        alert("Nothing valid to copy!");
         return;
     }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        const box = document.getElementById(elementId);
-        const copyBtn = box.parentElement.querySelector('.copy-btn');
-        const originalText = copyBtn.innerText;
-        
-        copyBtn.innerText = "COPIED!";
-        copyBtn.style.color = "#00FF66";
-        
-        setTimeout(() => {
-            copyBtn.innerText = originalText;
-            copyBtn.style.color = "";
-        }, 1500);
-    });
+    // Try standard Clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showCopySuccess(btnElement);
+        }).catch(() => {
+            fallbackCopyTextToClipboard(textToCopy, btnElement);
+        });
+    } else {
+        // Fallback for HTTP / Mobile local network access
+        fallbackCopyTextToClipboard(textToCopy, btnElement);
+    }
+}
+
+function fallbackCopyTextToClipboard(text, btnElement) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess(btnElement);
+        } else {
+            alert("Copy failed. Please manually select and copy.");
+        }
+    } catch (err) {
+        alert("Copy failed. Please manually select and copy.");
+    }
+
+    document.body.removeChild(textArea);
+}
+
+function showCopySuccess(btnElement) {
+    if (!btnElement) {
+        alert("Copied to clipboard!");
+        return;
+    }
+    const originalText = btnElement.innerText;
+    btnElement.innerText = "COPIED!";
+    btnElement.style.color = "#00ff66";
+    btnElement.style.borderColor = "#00ff66";
+
+    setTimeout(() => {
+        btnElement.innerText = originalText;
+        btnElement.style.color = "";
+        btnElement.style.borderColor = "";
+    }, 2000);
 }

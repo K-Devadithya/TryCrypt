@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ info.title }} // TRCRYPT</title>
+    <title>{{ info.title }} // TRYCRYPT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -16,48 +16,25 @@
             </div>
         </header>
 
-        <input type="hidden" id="activeCipher" value="{{ cipher_id }}">
+        <section class="hub-selection">
+            <h2 class="section-title">// CHOOSE OPERATION MODE</h2>
 
-        <div class="grid-layout">
-            <!-- Input & Configuration Panel -->
-            <div class="card">
-                <h2>// WORKSPACE CONFIGURATION</h2>
-
-                <label for="messageInput">INPUT TEXT</label>
-                <textarea id="messageInput" rows="5" placeholder="Enter plaintext or ciphertext..."></textarea>
-
-                <div id="keyGroup">
-                    <label for="keyInput">SECRET KEY / PARAMETER</label>
-                    <input type="text" id="keyInput" placeholder="Enter key...">
+            <div class="grid-layout">
+                <div class="card hub-card">
+                    <div class="card-badge">INPUT PLAINTEXT</div>
+                    <h3>Encryption Mode</h3>
+                    <p class="cipher-desc">Convert plain readable text into encoded ciphertext using secret key configurations.</p>
+                    <a href="/cipher/{{ info.id }}/encrypt" class="btn btn-encrypt">OPEN ENCRYPTOR →</a>
                 </div>
 
-                <div class="button-group">
-                    <button class="btn btn-encrypt" onclick="processCipher('encrypt')">ENCRYPT</button>
-                    <button class="btn btn-decrypt" onclick="processCipher('decrypt')">DECRYPT</button>
+                <div class="card hub-card">
+                    <div class="card-badge">INPUT CIPHERTEXT</div>
+                    <h3>Decryption Mode</h3>
+                    <p class="cipher-desc">Decode incoming encrypted ciphertexts back into original plaintext format using the matching secret key.</p>
+                    <a href="/cipher/{{ info.id }}/decrypt" class="btn btn-decrypt">OPEN DECRYPTOR →</a>
                 </div>
             </div>
-
-            <!-- Output Panel -->
-            <div class="card">
-                <h2>// OUTPUT PANEL</h2>
-
-                <label>PROCESSED RESULT</label>
-                <div class="output-container">
-                    <button class="copy-btn" onclick="copyToClipboard('resultBox')">COPY</button>
-                    <div id="resultBox" class="output-display">Awaiting input...</div>
-                </div>
-
-                <div id="keyUsedGroup" class="hidden">
-                    <label>KEY GENERATED / USED</label>
-                    <div class="output-container">
-                        <button class="copy-btn" onclick="copyToClipboard('keyUsedBox')">COPY</button>
-                        <div id="keyUsedBox" class="output-display key-display">---</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
