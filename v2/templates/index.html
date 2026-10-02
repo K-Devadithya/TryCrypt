@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRCRYPT // DASHBOARD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TRYCRYPT<span>_</span></h1>
+            <p>A SIMPLE ENCRYPTION TOOLKIT</p>
+        </header>
+
+        <section class="dashboard-section">
+            <h2 class="section-title">// SELECT ENCRYPTION ALGORITHM</h2>
+            
+            <div class="dashboard-grid">
+                <!-- CAESAR CIPHER CARD -->
+                <div class="card cipher-card">
+                    <div class="card-content">
+                        <div class="card-badge">SUBSTITUTION</div>
+                        <h3>Caesar Cipher</h3>
+                        <p class="cipher-desc">A simple shift cipher where characters are rotated by a fixed numerical value across the alphabet.</p>
+                        
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">KEY TYPE</span>
+                                <span class="spec-val">Numeric Shift (0-25)</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">SECURITY RATING</span>
+                                <span class="spec-val low">Very Low (25 Keys)</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">BEST FOR</span>
+                                <span class="spec-val">Learning Encryption Basics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="/cipher/caesar" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
+                    </div>
+                </div>
+
+                <!-- SUBSTITUTION CIPHER CARD -->
+                <div class="card cipher-card">
+                    <div class="card-content">
+                        <div class="card-badge">MONOALPHABETIC</div>
+                        <h3>Simple Substitution Cipher</h3>
+                        <p class="cipher-desc">Replaces each letter of the alphabet with a unique randomized 26-character mapping key.</p>
+                        
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">KEY TYPE</span>
+                                <span class="spec-val">26-Char Alphabet Map</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">SECURITY RATING</span>
+                                <span class="spec-val med">Moderate (4x10^26 Keys)</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">BEST FOR</span>
+                                <span class="spec-val">Custom Cipher Key Mapping</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="/cipher/substitution" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
+                    </div>
+                </div>
+
+                <!-- ONE-TIME PAD CARD -->
+                <div class="card cipher-card">
+                    <div class="card-content">
+                        <div class="card-badge">SYMMETRIC PAD</div>
+                        <h3>XOR Cypher (OTP)</h3>
+                        <p class="cipher-desc">Uses a truly random key sequence equal in length to the plaintext for theoretical unbreakability.</p>
+                        
+                        <div class="cipher-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">KEY TYPE</span>
+                                <span class="spec-val">Random Numerical Vector</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">SECURITY RATING</span>
+                                <span class="spec-val high">Theoretically Unbreakable</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">BEST FOR</span>
+                                <span class="spec-val">Maximum Privacy / Single-Use</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a href="/cipher/otp" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
