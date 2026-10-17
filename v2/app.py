@@ -19,8 +19,8 @@ CIPHERS_INFO = {
         "title": "Simple Substitution Cipher",
         "badge": "MONOALPHABETIC",
         "description": "Replaces each letter of the alphabet with a unique randomized 26-character mapping key.",
-        "key_label": "26-Character Mapping Key",
-        "key_placeholder": "e.g. QWERTYUIOPASDFGHJKLZXCVBNM",
+        "key_label": "26-Character Mapping Key (Optional)",
+        "key_placeholder": "Leave blank to auto-generate random key...",
         "key_type": "Alphabet Map"
     },
     "otp": {
@@ -28,8 +28,8 @@ CIPHERS_INFO = {
         "title": "XOR Cipher (OTP)",
         "badge": "SYMMETRIC PAD",
         "description": "Uses a truly random key sequence equal in length to the plaintext for theoretical unbreakability.",
-        "key_label": "Secret Key / Pad",
-        "key_placeholder": "Leave empty to auto-generate on encryption...",
+        "key_label": "Secret Key / Pad (Optional)",
+        "key_placeholder": "Leave blank to auto-generate random pad...",
         "key_type": "Random Pad"
     }
 }
@@ -111,6 +111,8 @@ def xor_otp_cipher(text, key=None, mode='encrypt'):
         key = key[:len(bytes_data)]
         decrypted_chars = [chr(b ^ ord(k)) for b, k in zip(bytes_data, key)]
         return "".join(decrypted_chars), key
+
+
 # -------------------------------------------------------------------
 # FRONTEND PAGE ROUTES
 # -------------------------------------------------------------------

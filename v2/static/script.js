@@ -1,3 +1,73 @@
+// -------------------------------------------------------------------
+// SPLASH SCREEN CONTROLLER
+// -------------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    const splash = document.getElementById("splashScreen");
+    if (splash) {
+        setTimeout(() => {
+            splash.classList.add("fade-out");
+        }, 2200);
+    }
+});
+
+
+// -------------------------------------------------------------------
+// MATRIX CODE RAIN ANIMATION
+// -------------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("codeRainCanvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+
+    let fontSize = 14;
+    let columns = 0;
+    let drops = [];
+
+    function initCanvas() {
+        canvas.width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        canvas.height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+        columns = Math.floor(canvas.width / fontSize);
+        
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * -100);
+        }
+    }
+
+    initCanvas();
+    window.addEventListener("resize", initCanvas);
+
+    const chars = "0123456789ABCDEF01<>/{}[];:?#XOR";
+
+    function drawRain() {
+        ctx.fillStyle = "rgba(8, 8, 12, 0.12)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = `${fontSize}px 'Courier New', monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            
+            ctx.fillStyle = Math.random() > 0.95 ? "rgba(0, 255, 204, 0.8)" : "rgba(180, 10, 50, 0.45)";
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+
+            drops[i]++;
+        }
+    }
+
+    setInterval(drawRain, 40);
+});
+
+
+// -------------------------------------------------------------------
+// BACKEND PROCESS EXECUTION
+// -------------------------------------------------------------------
 async function executeProcess() {
     const cipher = document.getElementById('activeCipher').value;
     const action = document.getElementById('activeAction').value;
@@ -27,7 +97,6 @@ async function executeProcess() {
         if (response.ok) {
             resultBox.innerText = data.result;
             
-            // Show key used if provided back by server
             if (data.key_used && keyUsedGroup) {
                 keyUsedBox.innerText = data.key_used;
                 keyUsedGroup.classList.remove('hidden');
@@ -40,7 +109,10 @@ async function executeProcess() {
     }
 }
 
-// Universal Copy Function with HTTP/Mobile Fallback
+
+// -------------------------------------------------------------------
+// COPY TO CLIPBOARD WITH HTTP/MOBILE FALLBACK
+// -------------------------------------------------------------------
 function copyToClipboard(elementId, btnElement) {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -52,7 +124,6 @@ function copyToClipboard(elementId, btnElement) {
         return;
     }
 
-    // Try standard Clipboard API first
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(textToCopy).then(() => {
             showCopySuccess(btnElement);
@@ -60,7 +131,6 @@ function copyToClipboard(elementId, btnElement) {
             fallbackCopyTextToClipboard(textToCopy, btnElement);
         });
     } else {
-        // Fallback for HTTP / Mobile local network access
         fallbackCopyTextToClipboard(textToCopy, btnElement);
     }
 }
@@ -69,7 +139,6 @@ function fallbackCopyTextToClipboard(text, btnElement) {
     const textArea = document.createElement("textarea");
     textArea.value = text;
     
-    // Avoid scrolling to bottom
     textArea.style.top = "0";
     textArea.style.left = "0";
     textArea.style.position = "fixed";

@@ -3,105 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRCRYPT // DASHBOARD</title>
+    <title>TRYCRYPT // Cryptographic Laboratory</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>TRYCRYPT<span>_</span></h1>
-            <p>A SIMPLE ENCRYPTION TOOLKIT</p>
+    <!-- Cyberpunk Splash Screen -->
+    <div id="splashScreen">
+        <div class="splash-content">
+            <svg class="trident-icon" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                <!-- Main Center Spearhead -->
+                <polygon points="50,5 42,25 47,25 47,85 53,85 53,25 58,25" fill="currentColor"/>
+                
+                <!-- Left Outer Prong & Curved Wing -->
+                <polygon points="20,25 15,40 22,40 24,65 30,65 28,35 33,35" fill="currentColor"/>
+                <path d="M 22 65 C 22 80, 47 80, 47 85" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                
+                <!-- Right Outer Prong & Curved Wing -->
+                <polygon points="80,25 85,40 78,40 76,65 70,65 72,35 67,35" fill="currentColor"/>
+                <path d="M 78 65 C 78 80, 53 80, 53 85" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+
+                <!-- Center Staff/Handle -->
+                <rect x="47" y="85" width="6" height="30" rx="2" fill="currentColor"/>
+                
+                <!-- Base Spike -->
+                <polygon points="50,120 44,113 56,113" fill="currentColor"/>
+            </svg>
+            <h1 class="splash-title">TRYCRYPT<span>_</span></h1>
+            <p class="splash-subtitle">// INITIALIZING LAB ENVIRONMENT...</p>
+        </div>
+    </div>
+
+    <!-- Background Code Rain Canvas -->
+    <canvas id="codeRainCanvas"></canvas>
+
+    <div class="container relative-z">
+        <header class="workspace-header">
+            <div>
+                <h1>TRYCRYPT<span>_</span></h1>
+                <p>CYBERNETIC ENCRYPTION & DECRYPTION PROTOCOLS</p>
+            </div>
         </header>
 
-        <section class="dashboard-section">
-            <h2 class="section-title">// SELECT ENCRYPTION ALGORITHM</h2>
-            
-            <div class="dashboard-grid">
-                <!-- CAESAR CIPHER CARD -->
-                <div class="card cipher-card">
-                    <div class="card-content">
-                        <div class="card-badge">SUBSTITUTION</div>
-                        <h3>Caesar Cipher</h3>
-                        <p class="cipher-desc">A simple shift cipher where characters are rotated by a fixed numerical value across the alphabet.</p>
-                        
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <span class="spec-label">KEY TYPE</span>
-                                <span class="spec-val">Numeric Shift (0-25)</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">SECURITY RATING</span>
-                                <span class="spec-val low">Very Low (25 Keys)</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">BEST FOR</span>
-                                <span class="spec-val">Learning Encryption Basics</span>
-                            </div>
-                        </div>
-                    </div>
+        <section class="grid-layout">
+            <!-- Caesar Cipher Card -->
+            <div class="card">
+                <div class="card-badge">SUBSTITUTION</div>
+                <h2>CAESAR CIPHER</h2>
+                <p class="cipher-desc">A classical rotation algorithm that shifts characters along the alphabet spectrum using a numeric offset key.</p>
+                <a href="/cipher/caesar" class="btn btn-primary">LAUNCH WORKSPACE →</a>
+            </div>
 
-                    <div class="card-footer">
-                        <a href="/cipher/caesar" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
-                    </div>
-                </div>
+            <!-- Substitution Cipher Card -->
+            <div class="card">
+                <div class="card-badge">MONOALPHABETIC</div>
+                <h2>SIMPLE SUBSTITUTION</h2>
+                <p class="cipher-desc">Maps each character of the alphabet to a unique randomized 26-letter substitution mapping matrix.</p>
+                <a href="/cipher/substitution" class="btn btn-primary">LAUNCH WORKSPACE →</a>
+            </div>
 
-                <!-- SUBSTITUTION CIPHER CARD -->
-                <div class="card cipher-card">
-                    <div class="card-content">
-                        <div class="card-badge">MONOALPHABETIC</div>
-                        <h3>Simple Substitution Cipher</h3>
-                        <p class="cipher-desc">Replaces each letter of the alphabet with a unique randomized 26-character mapping key.</p>
-                        
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <span class="spec-label">KEY TYPE</span>
-                                <span class="spec-val">26-Char Alphabet Map</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">SECURITY RATING</span>
-                                <span class="spec-val med">Moderate (4x10^26 Keys)</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">BEST FOR</span>
-                                <span class="spec-val">Custom Cipher Key Mapping</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-footer">
-                        <a href="/cipher/substitution" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
-                    </div>
-                </div>
-
-                <!-- ONE-TIME PAD CARD -->
-                <div class="card cipher-card">
-                    <div class="card-content">
-                        <div class="card-badge">SYMMETRIC PAD</div>
-                        <h3>XOR Cypher (OTP)</h3>
-                        <p class="cipher-desc">Uses a truly random key sequence equal in length to the plaintext for theoretical unbreakability.</p>
-                        
-                        <div class="cipher-specs">
-                            <div class="spec-item">
-                                <span class="spec-label">KEY TYPE</span>
-                                <span class="spec-val">Random Numerical Vector</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">SECURITY RATING</span>
-                                <span class="spec-val high">Theoretically Unbreakable</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">BEST FOR</span>
-                                <span class="spec-val">Maximum Privacy / Single-Use</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-footer">
-                        <a href="/cipher/otp" class="btn btn-encrypt launch-btn">LAUNCH TOOL →</a>
-                    </div>
-                </div>
+            <!-- XOR / OTP Card -->
+            <div class="card">
+                <div class="card-badge">SYMMETRIC PAD</div>
+                <h2>XOR CIPHER (OTP)</h2>
+                <p class="cipher-desc">Combines text bits with a random keystream pad via bitwise XOR operations for high-grade encryption.</p>
+                <a href="/cipher/otp" class="btn btn-primary">LAUNCH WORKSPACE →</a>
             </div>
         </section>
     </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
